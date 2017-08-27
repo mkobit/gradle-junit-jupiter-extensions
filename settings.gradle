@@ -8,4 +8,14 @@ pluginManagement {
   }
 }
 
+include(
+  'junit-jupiter-extensions',
+  'assertj-extensions',
+  'kotlin-extensions'
+)
+
 rootProject.name = 'gradle-test-kit-extensions'
+
+rootProject.children.each { project ->
+  project.buildFileName = "${project.name}.gradle.kts"
+}
