@@ -1,7 +1,6 @@
 package com.mkobit.gradle.testkit.assertj;
 
 import org.assertj.core.api.AbstractAssert;
-import org.assertj.core.api.Assertions;
 import org.gradle.testkit.runner.BuildResult;
 
 public class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildResult> {
@@ -9,10 +8,11 @@ public class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildRe
     super(actual, BuildResultAssert.class);
   }
 
-  public BuildResultAssert buildOutputContainsText(CharSequence text) {
+  public BuildResultAssert outputContains(CharSequence text) {
     isNotNull();
 
     if (!actual.getOutput().contains(text)) {
+      // TODO: improve message output
       failWithMessage("Expected build output to contain <%s> but did not", text);
     }
 
