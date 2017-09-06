@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 buildscript {
   repositories {
     mavenCentral()
@@ -32,21 +34,23 @@ allprojects {
   }
 }
 
+val kotlinVersion by project
+
 subprojects {
   pluginManager.apply("java-library")
+  pluginManager.apply("org.jetbrains.kotlin.jvm")
   dependencies {
     "api"(gradleApi())
     "api"(gradleTestKit())
     "testImplementation"("org.mockito:mockito-core:2.9.0")
+    "testImplementation"(kotlin("stdlib-jre8", kotlinVersion as String))
   }
   configure<JavaPluginConvention> {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
   }
 
-  pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
-    dependencies {
-      "implementation"(kotlin("stdlib-jre8"))
-    }
+  tasks.withType(KotlinCompile::class.java) {
+    kotlinOptions.jvmTarget = "1.8"
   }
 }
