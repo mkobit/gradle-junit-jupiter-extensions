@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.junit.platform.console.options.Details
+import org.junit.platform.gradle.plugin.JUnitPlatformExtension
 
 buildscript {
   repositories {
@@ -13,10 +15,6 @@ buildscript {
 plugins {
   kotlin("jvm") apply false
   id("com.github.ben-manes.versions") version "0.15.0"
-}
-
-apply {
-  from("gradle/junit5.gradle.kts")
 }
 
 tasks {
@@ -34,17 +32,46 @@ allprojects {
   }
 }
 
+apply {
+  from("gradle/junit5.gradle.kts")
+}
+
 val kotlinVersion by project
+val junitPlatformVersion: String by rootProject.extra
+val junitTestImplementationArtifacts: Map<String, Map<String, String>> by rootProject.extra
+val junitTestRuntimeOnlyArtifacts: Map<String, Map<String, String>> by rootProject.extra
 
 subprojects {
   pluginManager.apply("java-library")
+  pluginManager.apply("org.junit.platform.gradle.plugin")
   pluginManager.apply("org.jetbrains.kotlin.jvm")
   dependencies {
     "api"(gradleApi())
     "api"(gradleTestKit())
+    "testImplementation"(kotlin("reflect", kotlinVersion as String))
+    "testImplementation"("org.assertj:assertj-core:3.8.0")
     "testImplementation"("org.mockito:mockito-core:2.9.0")
+    "testImplementation"("com.nhaarman:mockito-kotlin:1.5.0")
+    junitTestImplementationArtifacts.values.forEach {
+      "testImplementation"(it)
+    }
+    junitTestRuntimeOnlyArtifacts.values.forEach {
+      "testRuntimeOnly"(it)
+    }
     "testImplementation"(kotlin("stdlib-jre8", kotlinVersion as String))
   }
+
+  extensions.getByType(JUnitPlatformExtension::class.java).apply {
+    platformVersion = junitPlatformVersion
+    filters {
+      engines {
+        include("junit-jupiter")
+      }
+    }
+    logManager = "org.apache.logging.log4j.jul.LogManager"
+    details = Details.TREE
+  }
+
   configure<JavaPluginConvention> {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8

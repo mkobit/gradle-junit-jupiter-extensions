@@ -13,6 +13,7 @@ public class BuildTaskAssert extends AbstractAssert<BuildTaskAssert, BuildTask> 
     isNotNull();
 
     if (!actual.getPath().equals(fullPath)) {
+
     }
 
     return this;
@@ -53,8 +54,13 @@ public class BuildTaskAssert extends AbstractAssert<BuildTaskAssert, BuildTask> 
     assertTaskOutcome(TaskOutcome.UP_TO_DATE);
     return this;
   }
+  public BuildTaskAssert hasTaskOutcome(final TaskOutcome taskOutcome) {
+    isNotNull();
+    assertTaskOutcome(taskOutcome);
+    return this;
+  }
 
   private void assertTaskOutcome(final TaskOutcome expected) {
-
+    isEqualTo(expected);
   }
 }
