@@ -4,21 +4,12 @@ import org.assertj.core.api.AbstractAssert;
 import org.gradle.testkit.runner.BuildTask;
 import org.gradle.testkit.runner.TaskOutcome;
 
+import javax.annotation.Nullable;
+
 public class BuildTaskAssert extends AbstractAssert<BuildTaskAssert, BuildTask> {
-  public BuildTaskAssert(final BuildTask actual) {
+  public BuildTaskAssert(@Nullable final BuildTask actual) {
     super(actual, BuildTaskAssert.class);
   }
-
-  public BuildTaskAssert pathIsEqualTo(final CharSequence fullPath) {
-    isNotNull();
-
-    if (!actual.getPath().equals(fullPath)) {
-
-    }
-
-    return this;
-  }
-
 
   public BuildTaskAssert isFailed() {
     isNotNull();
@@ -61,6 +52,14 @@ public class BuildTaskAssert extends AbstractAssert<BuildTaskAssert, BuildTask> 
   }
 
   private void assertTaskOutcome(final TaskOutcome expected) {
-    isEqualTo(expected);
+    if (actual.getOutcome() != expected) {
+      //failWithMessage("%nExpecting build output:%n <%s>%nto contain:%n <%s>", text, actual.getOutput());
+      failWithMessage(
+        "%nExpecting task at path %s to have outcome:%n <%s>%nbut was:%n <%s>",
+        actual.getPath(),
+        expected,
+        actual.getOutcome()
+      );
+    }
   }
 }
