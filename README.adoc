@@ -1,0 +1,90 @@
+= Gradle Test Extensions
+:toc:
+:version: UNRELEASED
+:uri-assertj: https://joel-costigliola.github.io/assertj/
+:uri-junit-jupiter: http://junit.org/junit5/docs/current/user-guide/
+:uri-gradle-test-kit: https://docs.gradle.org/current/userguide/test_kit.html
+:uri-gradle-build-result: https://docs.gradle.org/current/javadoc/org/gradle/testkit/runner/BuildResult.html
+:uri-gradle-build-task: https://docs.gradle.org/current/javadoc/org/gradle/testkit/runner/BuildTask.html
+
+Multiple packages for different testing frameworks that make testing Gradle plugins (mostly using link:{uri-gradle-test-kit}[TestKit]) simpler.
+All packages are built to support Java 8.
+
+== Modules
+
+=== AssertJ Extensions
+
+`com.mkobit.gradle.testkit:assertj-extensions:{version}`
+
+link:{uri-assertj}[AssertJ] is fluent assertions library for Java.
+
+This library provides additional AssertJ assertions for:
+
+* link:{uri-gradle-build-result}[`org.gradle.testkit.runner.BuildResult`]
+* link:{uri-gradle-build-task}[`org.gradle.testkit.runner.BuildTask`]
+
+.Example
+[source, java]
+----
+import static com.mkobit.gradle.testkit.assertj.GradleTestKitAssertions.assertThat;
+
+public class MyPluginTests {
+  @Test
+  public void testMyBuild() {
+    GradleRunner gradleRunner = GradleRunner.create();
+    // ...
+    // Setup project directory, build arguments, etc.
+    BuildResult buildResult = gradleRunner.build();
+    assertThat(buildResult)
+      .hasTaskAtPath(":foo")
+      .doesNotHaveTaskAtPath(":bar")
+      .outputContains("build did things")
+      .outputSatisfies(output -> assertThat(output).isNotNull())
+      .hasTaskAtPathSatisfying(":baz", task -> {
+        assertThat(task).isSuccess();
+      });
+  }
+}
+----
+
+=== JUnit Jupiter Extensions
+
+`com.mkobit.gradle.testkit:junit-jupiter-extension:{version}`
+
+link:{uri-junit-jupiter}[JUnit Jupiter] is the the new programming model and extension model for _JUnit 5_.
+
+This library includes extensions for writing and running tests on JUnit 5.
+
+.Example
+[source, java]
+----
+// TODO
+----
+
+=== Kotlin Extensions
+
+`com.mkobit.gradle.testkit:junit-jupiter-extension:{version}`
+
+This library contains extensions for authoring tests in Kotlin.
+
+* extensions for `GradleRunner`
+** `buildWith()`
+** `buildAndFailWith()`
+** `resolveFromProjectDir`
+
+[source, kotlin]
+----
+import com.mkobit.gradle.testkit.runner.buildWith
+
+class MyTest {
+  @Test
+  fun runGradleTest() {
+    val gradleRunner = GradleRunner.create()
+    // Other configuration...
+    val buildResult: BuildResult = gradleRunner.buildWith(projectDir = tempDir, debug = true, versionNumber = "4.1")
+
+    val relativePath = gradleRunner.resolveFromProjectDir(Paths.get("build/myoutput.txt"))
+    // Assertions, and other things
+  }
+}
+----
