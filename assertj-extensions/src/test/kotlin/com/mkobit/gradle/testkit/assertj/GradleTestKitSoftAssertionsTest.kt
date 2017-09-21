@@ -11,15 +11,23 @@ internal class GradleTestKitSoftAssertionsTest {
   internal fun `can use soft assertions with BuildTask`() {
     val mockBuildTask: BuildTask = mock()
 
-    Assertions.assertThatCode { GradleTestKitAssertions.assertThat(mockBuildTask).isNotNull }.doesNotThrowAnyException()
-    Assertions.assertThatThrownBy { GradleTestKitAssertions.assertThat(mockBuildTask).isNull() }.isInstanceOf(AssertionError::class.java)
+    Assertions.assertThatCode {
+      GradleTestKitSoftAssertions().apply { assertThat(mockBuildTask).isNotNull }.assertAll()
+    }.doesNotThrowAnyException()
+    Assertions.assertThatThrownBy {
+      GradleTestKitSoftAssertions().apply { assertThat(mockBuildTask).isNull() }.assertAll()
+    }.isInstanceOf(AssertionError::class.java)
   }
 
   @Test
   internal fun `can use soft assertions with BuildResult`() {
     val mockBuildResult: BuildResult = mock()
 
-    Assertions.assertThatCode { GradleTestKitAssertions.assertThat(mockBuildResult).isNotNull }.doesNotThrowAnyException()
-    Assertions.assertThatThrownBy { GradleTestKitAssertions.assertThat(mockBuildResult).isNull() }.isInstanceOf(AssertionError::class.java)
+    Assertions.assertThatCode {
+      GradleTestKitSoftAssertions().apply { assertThat(mockBuildResult).isNotNull }
+    }.doesNotThrowAnyException()
+    Assertions.assertThatThrownBy {
+      GradleTestKitSoftAssertions().apply { assertThat(mockBuildResult).isNull() }.assertAll()
+    }.isInstanceOf(AssertionError::class.java)
   }
 }

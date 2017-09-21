@@ -91,6 +91,7 @@ subprojects {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
   }
+
   val main = java.sourceSets["main"]!!
 
   val sourcesJar by tasks.creating(Jar::class) {
