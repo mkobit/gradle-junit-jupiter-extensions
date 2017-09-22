@@ -1,44 +1,83 @@
 version: 2
 jobs:
-  build:
+  cache_dependencies:
     docker:
       - image: circleci/openjdk:8-jdk
         environment:
           JAVA_OPTS: -XX:+UseG1GC
-          # Disable Kotlin compiler daemon - https://discuss.kotlinlang.org/t/solved-disable-kotlin-compiler-process-keepalive/2622
-          GRADLE_OPTS: -Dkotlin.compiler.execution.strategy="in-process"
-
     working_directory: ~/gradle-junit-jupiter-extensions
     steps:
       - checkout
-
       - restore_cache:
           keys:
           - home-cache-{{ checksum "build.gradle.kts" }}-{{ checksum "gradle.properties" }}-{{ checksum "gradle/junit5.gradle.kts" }}
           - build-cache-{{ checksum "build.gradle.kts" }}-{{ checksum "gradle.properties" }}-{{ checksum "gradle/junit5.gradle.kts" }}
-
       - run:
-          command: |
-            java -XshowSettings:vm -XX:+PrintCommandLineFlags -version
-            java -XshowSettings:vm -XX:+PrintCommandLineFlags -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -version
-            javac -version
-          name: Show Java Version
-
-      - run:
-          command: ./gradlew build --stacktrace --scan
-          name: Gradle Build
-
+          command: ./gradlew downloadAllDependencies --stacktrace
+          name: Download Dependencies
       - save_cache:
           paths:
             - ~/.gradle
           key: home-cache-{{ checksum "build.gradle.kts" }}-{{ checksum "gradle.properties" }}-{{ checksum "gradle/junit5.gradle.kts" }}
-
-      - store_test_results:
-          path: ~/gradle-junit-jupiter-extensions/build/test-results/
-
       - save_cache:
           paths:
             - ~/gradle-junit-jupiter-extensions/.gradle
           key: build-cache-{{ checksum "build.gradle.kts" }}-{{ checksum "gradle.properties" }}-{{ checksum "gradle/junit5.gradle.kts" }}
+  java_8_build:
+    docker:
+      - image: circleci/openjdk:8-jdk
+        environment:
+          JAVA_OPTS: -XX:+UseG1GC
 
+    working_directory: ~/gradle-junit-jupiter-extensions
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - home-cache-{{ checksum "build.gradle.kts" }}-{{ checksum "gradle.properties" }}-{{ checksum "gradle/junit5.gradle.kts" }}
+          - build-cache-{{ checksum "build.gradle.kts" }}-{{ checksum "gradle.properties" }}-{{ checksum "gradle/junit5.gradle.kts" }}
+      - run:
+          command: |
+            java -XshowSettings:vm -XX:+PrintCommandLineFlags -version
+            javac -version
+          name: Show Java Version
+      - run:
+          command: ./gradlew build --stacktrace
+          name: Gradle Build
+      - store_test_results:
+          path: ~/gradle-junit-jupiter-extensions/build/test-results/
+  java_9_build:
+    docker:
+      - image: circleci/openjdk:9-jdk
+        environment:
+          JAVA_OPTS: -XX:+UseG1GC
 
+    working_directory: ~/gradle-junit-jupiter-extensions
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - home-cache-{{ checksum "build.gradle.kts" }}-{{ checksum "gradle.properties" }}-{{ checksum "gradle/junit5.gradle.kts" }}
+          - build-cache-{{ checksum "build.gradle.kts" }}-{{ checksum "gradle.properties" }}-{{ checksum "gradle/junit5.gradle.kts" }}
+      - run:
+          command: |
+            java -XshowSettings:vm -XX:+PrintCommandLineFlags -version
+            javac -version
+          name: Show Java Version
+      - run:
+          command: ./gradlew build --stacktrace
+          name: Gradle Build
+      - store_test_results:
+          path: ~/gradle-junit-jupiter-extensions/build/test-results/
+
+workflows:
+  version: 2
+  build_test:
+    jobs:
+      - cache_dependencies
+      - java_8_build:
+          requires:
+            - cache_dependencies
+      - java_9_build:
+          requires:
+            - cache_dependencies

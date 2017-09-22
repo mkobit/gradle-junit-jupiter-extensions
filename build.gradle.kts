@@ -91,36 +91,59 @@ val main = java.sourceSets["main"]!!
 // No Java in main source set
 main.java.setSrcDirs(emptyList<Any>())
 
-val sourcesJar by tasks.creating(Jar::class) {
-  classifier = "sources"
-  from(main.allSource)
-  description = "Assembles a JAR of the source code"
-  group = JavaBasePlugin.DOCUMENTATION_GROUP
-}
+tasks {
+  "downloadAllDependencies" {
+    description = "Downloads dependencies for caching and usage on Circle CI"
+    val index = file("$buildDir/downloadedDependenciesIndex.txt")
+    val includedConfigurations: () -> Iterable<Configuration> = {
+      configurations.filter { it.isCanBeResolved }
+    }
+    includedConfigurations.invoke().forEach { inputs.files(it) }
+    outputs.file(index)
+    doFirst {
+      val fileNames = includedConfigurations.invoke().flatMap {
+        logger.info("Resolving configuration named ${it.name}")
+        it.resolve()
+      }.joinToString(separator = System.lineSeparator()) {
+        it.name
+      }
+      index.bufferedWriter().use { it.write(fileNames) }
+    }
+  }
 
-val dokka by tasks.getting(DokkaTask::class) {
-  dependsOn(main.classesTaskName)
-  outputFormat = "html"
-  outputDirectory = "$buildDir/javadoc"
-  sourceDirs = main.kotlin.srcDirs
-}
+  val sourcesJar by creating(Jar::class) {
+    classifier = "sources"
+    from(main.allSource)
+    description = "Assembles a JAR of the source code"
+    group = JavaBasePlugin.DOCUMENTATION_GROUP
+  }
 
-val javadocJar by tasks.creating(Jar::class) {
-  dependsOn(dokka)
-  from(dokka.outputDirectory)
-  classifier = "javadoc"
-  description = "Assembles a JAR of the generated Javadoc"
-  group = JavaBasePlugin.DOCUMENTATION_GROUP
-}
+  val dokka by getting(DokkaTask::class) {
+    dependsOn(main.classesTaskName)
+    outputFormat = "html"
+    outputDirectory = "$buildDir/javadoc"
+    sourceDirs = main.kotlin.srcDirs
+  }
 
-tasks["assemble"].dependsOn(sourcesJar, javadocJar)
+  val javadocJar by creating(Jar::class) {
+    dependsOn(dokka)
+    from(dokka.outputDirectory)
+    classifier = "javadoc"
+    description = "Assembles a JAR of the generated Javadoc"
+    group = JavaBasePlugin.DOCUMENTATION_GROUP
+  }
 
-publishing {
-  publications.invoke {
-    "library"(MavenPublication::class) {
-      from(components["java"])
-      artifact(sourcesJar)
-      artifact(javadocJar)
+  val assemble by getting {
+    dependsOn(sourcesJar, javadocJar)
+  }
+
+  publishing {
+    publications.invoke {
+      "library"(MavenPublication::class) {
+        from(components["java"])
+        artifact(sourcesJar)
+        artifact(javadocJar)
+      }
     }
   }
 }
