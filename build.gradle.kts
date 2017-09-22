@@ -88,8 +88,8 @@ java {
 }
 
 val main = java.sourceSets["main"]!!
-// No Kotlin in main source set
-main.kotlin.setSrcDirs(emptyList<Any>())
+// No Java in main source set
+main.java.setSrcDirs(emptyList<Any>())
 
 val sourcesJar by tasks.creating(Jar::class) {
   classifier = "sources"
