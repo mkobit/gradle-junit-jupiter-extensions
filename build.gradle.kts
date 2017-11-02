@@ -13,7 +13,7 @@ buildscript {
   }
   dependencies {
     // TODO: load from properties or script plugin
-    classpath("org.junit.platform:junit-platform-gradle-plugin:1.0.0")
+    classpath("org.junit.platform:junit-platform-gradle-plugin:1.0.1")
     classpath("org.jetbrains.dokka:dokka-gradle-plugin:0.9.15")
   }
 }
@@ -22,7 +22,7 @@ plugins {
   `java-library`
   `maven-publish`
   kotlin("jvm")
-  id("com.github.ben-manes.versions") version "0.15.0"
+  id("com.github.ben-manes.versions") version "0.17.0"
 }
 
 val SourceSet.kotlin: SourceDirectorySet
@@ -30,7 +30,7 @@ val SourceSet.kotlin: SourceDirectorySet
 
 tasks {
   "wrapper"(Wrapper::class) {
-    gradleVersion = "4.2"
+    gradleVersion = "4.3"
   }
 }
 
@@ -56,11 +56,12 @@ val junitTestRuntimeOnlyArtifacts: Map<String, Map<String, String>> by rootProje
 dependencies {
   api(gradleApi())
   api(gradleTestKit())
-  api(kotlin("stdlib-jre8", kotlinVersion as String))
   api("org.junit.jupiter", "junit-jupiter-api", junitJupiterVersion)
+  implementation(kotlin("stdlib-jre8", kotlinVersion as String))
+  implementation("io.github.microutils:kotlin-logging:1.4.6")
   testImplementation(kotlin("reflect", kotlinVersion as String))
   testImplementation("org.assertj:assertj-core:3.8.0")
-  testImplementation("org.mockito:mockito-core:2.10.0")
+  testImplementation("org.mockito:mockito-core:2.11.0")
   testImplementation("com.nhaarman:mockito-kotlin:1.5.0")
   junitTestImplementationArtifacts.values.forEach {
     testImplementation(it)
