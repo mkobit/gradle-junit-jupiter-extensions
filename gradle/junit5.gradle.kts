@@ -1,8 +1,7 @@
-val junitPlatformVersion: String by extra { "1.0.1" }
-val junitPlatformGradlePluginVersion: String by extra { "1.0.1" }
-val junitJupiterVersion: String by extra { "5.0.1" }
-val junitVintageVersion: String by extra { "4.12.1" }
-val junit5Log4jVersion: String by extra { "2.9.1" }
+val junitPlatformVersion: String by extra { "1.1.0" }
+val junitPlatformGradlePluginVersion: String by extra { "1.1.0" }
+val junitJupiterVersion: String by extra { "5.1.0" }
+val junit5Log4jVersion: String by extra { "2.10.0" }
 
 extra["junitTestImplementationArtifacts"] = mapOf(
   "junit-platform-runner" to mapOf("group" to "org.junit.platform", "name" to "junit-platform-runner", "version" to "${extra["junitPlatformVersion"]}"),

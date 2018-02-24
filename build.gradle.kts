@@ -1,27 +1,14 @@
 import org.gradle.api.internal.HasConvention
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.junit.platform.console.options.Details
-import org.junit.platform.gradle.plugin.JUnitPlatformExtension
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-
-buildscript {
-  repositories {
-    mavenCentral()
-    jcenter()
-  }
-  dependencies {
-    // TODO: load from properties or script plugin
-    classpath("org.junit.platform:junit-platform-gradle-plugin:1.0.1")
-    classpath("org.jetbrains.dokka:dokka-gradle-plugin:0.9.15")
-  }
-}
 
 plugins {
   `java-library`
   `maven-publish`
   kotlin("jvm")
+  id("org.jetbrains.dokka") version "0.9.16"
   id("com.github.ben-manes.versions") version "0.17.0"
 }
 
@@ -30,12 +17,13 @@ val SourceSet.kotlin: SourceDirectorySet
 
 tasks {
   "wrapper"(Wrapper::class) {
-    gradleVersion = "4.3"
+    gradleVersion = "4.6-rc-2"
   }
 }
 
 version = "0.1.0"
 group = "com.mkobit.gradle.test"
+
 repositories {
   jcenter()
   mavenCentral()
@@ -43,11 +31,8 @@ repositories {
 
 apply {
   from("gradle/junit5.gradle.kts")
-  plugin("org.junit.platform.gradle.plugin")
-  plugin("org.jetbrains.dokka")
 }
 
-val kotlinVersion by project
 val junitPlatformVersion: String by rootProject.extra
 val junitJupiterVersion: String by rootProject.extra
 val junitTestImplementationArtifacts: Map<String, Map<String, String>> by rootProject.extra
@@ -57,11 +42,11 @@ dependencies {
   api(gradleApi())
   api(gradleTestKit())
   api("org.junit.jupiter", "junit-jupiter-api", junitJupiterVersion)
-  implementation(kotlin("stdlib-jre8", kotlinVersion as String))
-  implementation("io.github.microutils:kotlin-logging:1.4.6")
-  testImplementation(kotlin("reflect", kotlinVersion as String))
-  testImplementation("org.assertj:assertj-core:3.8.0")
-  testImplementation("org.mockito:mockito-core:2.11.0")
+  implementation(kotlin("stdlib-jdk8"))
+  implementation("io.github.microutils:kotlin-logging:1.5.3")
+  testImplementation(kotlin("reflect"))
+  testImplementation("org.assertj:assertj-core:3.9.1")
+  testImplementation("org.mockito:mockito-core:2.14.0")
   testImplementation("com.nhaarman:mockito-kotlin:1.5.0")
   junitTestImplementationArtifacts.values.forEach {
     testImplementation(it)
@@ -69,18 +54,6 @@ dependencies {
   junitTestRuntimeOnlyArtifacts.values.forEach {
     testRuntimeOnly(it)
   }
-  testImplementation(kotlin("stdlib-jre8", kotlinVersion as String))
-}
-
-extensions.getByType(JUnitPlatformExtension::class.java).apply {
-  platformVersion = junitPlatformVersion
-  filters {
-    engines {
-      include("junit-jupiter")
-    }
-  }
-  logManager = "org.apache.logging.log4j.jul.LogManager"
-  details = Details.TREE
 }
 
 java {
@@ -91,6 +64,13 @@ java {
 val main = java.sourceSets["main"]!!
 // No Java in main source set
 main.java.setSrcDirs(emptyList<Any>())
+
+tasks {
+  "test"(Test::class) {
+    useJUnitPlatform()
+    systemProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager")
+  }
+}
 
 val sourcesJar by tasks.creating(Jar::class) {
   classifier = "sources"
