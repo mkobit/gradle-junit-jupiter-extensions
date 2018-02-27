@@ -72,7 +72,6 @@ dependencies {
   api(gradleTestKit())
   api(DependencyInfo.junitJupiterApi)
   implementation(kotlin("stdlib-jdk8"))
-  implementation("io.github.microutils:kotlin-logging:1.5.3")
   testImplementation(kotlin("reflect"))
   testImplementation(DependencyInfo.assertJCore)
   testImplementation(DependencyInfo.mockitoCore)
