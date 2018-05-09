@@ -1,1 +1,1 @@
-rootProject.name = "gradle-junit-jupiter-extensions"
+rootProject.name = "gradle-junit-platform-tools"
