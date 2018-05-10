@@ -89,13 +89,9 @@ java {
   targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-val main by java.sourceSets
-// No Java in main source set
-main.java.setSrcDirs(emptyList<Any>())
-
 tasks {
   "wrapper"(Wrapper::class) {
-    gradleVersion = "4.6-rc-2"
+    gradleVersion = "4.7"
   }
   withType<Jar> {
     from(project.projectDir) {
@@ -128,6 +124,7 @@ tasks {
     kotlinOptions.jvmTarget = "1.8"
   }
 
+  val main by java.sourceSets
   val sourcesJar by creating(Jar::class) {
     classifier = "sources"
     from(main.allSource)
