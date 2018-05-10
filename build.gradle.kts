@@ -12,10 +12,10 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 plugins {
-  id("com.gradle.build-scan") version "1.11"
+  id("com.gradle.build-scan") version "1.13.2"
   `java-library`
   `maven-publish`
-  kotlin("jvm") version "1.2.21"
+  kotlin("jvm") version "1.2.41"
   id("com.github.ben-manes.versions") version "0.17.0"
   id("com.jfrog.bintray") version "1.8.0"
   id("org.jetbrains.dokka") version "0.9.16"
@@ -41,8 +41,8 @@ val SourceSet.kotlin: SourceDirectorySet
 buildScan {
   fun env(key: String): String? = System.getenv(key)
 
-  setLicenseAgree("yes")
-  setLicenseAgreementUrl("https://gradle.com/terms-of-service")
+  setTermsOfServiceAgree("yes")
+  setTermsOfServiceUrl("https://gradle.com/terms-of-service")
 
   // Env variables from https://circleci.com/docs/2.0/env-vars/
   if (env("CI") != null) {
